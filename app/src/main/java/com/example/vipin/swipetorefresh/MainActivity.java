@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private List<Movie> movieList;
 
 
-    //initially offset will be 0, later will be updated while parsing the json
+    //initially offset willbe 0, later will be updated while parsing the json
     private int offSet = 0;
 
 
