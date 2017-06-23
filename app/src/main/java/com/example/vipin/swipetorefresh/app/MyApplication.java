@@ -13,14 +13,12 @@ import com.android.volley.toolbox.Volley;
 //This is a singleton Application class which initiates volley core objects on app launch.
 
 public class MyApplication  extends Application{
-
-
-    public static final String TAG = MyApplication.class.getSimpleName();
+    public static final String TAG = MyApplication.class
+            .getSimpleName();
 
     private RequestQueue mRequestQueue;
 
     private static MyApplication mInstance;
-
 
     @Override
     public void onCreate() {
@@ -28,41 +26,31 @@ public class MyApplication  extends Application{
         mInstance = this;
     }
 
-    public  static synchronized  MyApplication getmInstance()
-    {
-        return  mInstance;
+    public static synchronized MyApplication getInstance() {
+        return mInstance;
     }
 
-
-    public RequestQueue getRequestQueue()
-    {
-        if (mRequestQueue == null)
-        {
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
             mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-
         }
 
         return mRequestQueue;
     }
 
-        public <T> void addToRequestQueue(Request<T> req, String tag)
-        {
-            req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
-            getRequestQueue().add(req);
-        }
+    public <T> void addToRequestQueue(Request<T> req, String tag) {
+        req.setTag(TextUtils.isEmpty(tag) ? TAG : tag);
+        getRequestQueue().add(req);
+    }
 
+    public <T> void addToRequestQueue(Request<T> req) {
+        req.setTag(TAG);
+        getRequestQueue().add(req);
+    }
 
-        public <T> void addToRequestQueue(Request<T> req)
-        {
-            req.setTag(TAG);
-            getRequestQueue().add(req);
+    public void cancelPendingRequests(Object tag) {
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(tag);
         }
-
-        public void cancelPendingRequests(Object tag)
-        {
-            if (mRequestQueue != null)
-            {
-                mRequestQueue.cancelAll(tag);
-            }
-        }
+    }
 }

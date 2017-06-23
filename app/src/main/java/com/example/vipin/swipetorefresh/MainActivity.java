@@ -1,6 +1,7 @@
 package com.example.vipin.swipetorefresh;
 
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,66 +22,64 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    private String TAG = MainActivity.class.getSimpleName();
-    private String URL_TOP_250 = "http://api.androidhive.info/json/imdb_top_250.php?offset=";
+private String TAG = MainActivity.class.getSimpleName();
 
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private ListView listView;
-    private SwipeListAdapter adapter;
-    private List<Movie> movieList;
+private String URL_TOP_250 = "http://api.androidhive.info/json/imdb_top_250.php?offset=";
 
+private SwipeRefreshLayout swipeRefreshLayout;
+private ListView listView;
+private SwipeListAdapter adapter;
+private List<Movie> movieList;
 
-    //initially offset willbe 0, later will be updated while parsing the json
-    private int offSet = 0;
+// initially offset will be 0, later will be updated while parsing the json
+private int offSet = 0;
 
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+@Override
+protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         listView = (ListView) findViewById(R.id.listView);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
-
         movieList = new ArrayList<>();
-
         adapter = new SwipeListAdapter(this, movieList);
         listView.setAdapter(adapter);
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        /*
-        * Showing Swipe Refresh animation on activity create
-        * As animation won't start on onCreate post runnable is used
-        * */
 
+        /**
+         * Showing Swipe Refresh animation on activity create
+         * As animation won't start on onCreate, post runnable is used
+         */
         swipeRefreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                swipeRefreshLayout.setRefreshing(true);
-                fetchMovies();
-            }
-        });
-    }
+@Override
+public void run() {
+        swipeRefreshLayout.setRefreshing(true);
 
-    /*
-    * This method is called when swipe refresh is pulled down
-    * */
+        fetchMovies();
+        }
+        }
+        );
 
-    @Override
-    public void onRefresh() {
-            fetchMovies();
-    }
+        }
 
-    /*
-    * Fetching movies json by making http call
-    * */
-    private void fetchMovies() {
+/**
+ * This method is called when swipe refresh is pulled down
+ */
+@Override
+public void onRefresh() {
+        fetchMovies();
+        }
 
-        //showing refresh animation before making http call
+/**
+ * Fetching movies json by making http call
+ */
+private void fetchMovies() {
+
+        // showing refresh animation before making http call
         swipeRefreshLayout.setRefreshing(true);
 
         // appending offset to url
@@ -88,57 +87,55 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         // Volley's json array request object
         JsonArrayRequest req = new JsonArrayRequest(url,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.d(TAG, response.toString());
+        new Response.Listener<JSONArray>() {
+@Override
+public void onResponse(JSONArray response) {
+        Log.d(TAG, response.toString());
 
-                        if (response.length() > 0)
-                        {
+        if (response.length() > 0) {
 
-                            //looping through json and adding to movies list
-                            for (int i=0; i < response.length(); i++)
-                            {
-                                try {
-                                    JSONObject movieObj = response.getJSONObject(i);
-                                    int rank = movieObj.getInt("rank");
-                                    String title = movieObj.getString("title");
+        // looping through json and adding to movies list
+        for (int i = 0; i < response.length(); i++) {
+        try {
+        JSONObject movieObj = response.getJSONObject(i);
 
-                                    Movie m = new Movie(rank, title);
+        int rank = movieObj.getInt("rank");
+        String title = movieObj.getString("title");
 
-                                    movieList.add(0, m);
+        Movie m = new Movie(rank, title);
 
-                                    //updating offset value to highest value
-                                    if (rank >= offSet)
-                                        offSet = rank;
+        movieList.add(0, m);
 
-                                } catch (JSONException e) {
-                                    Log.e(TAG, "JSON Parsing error: "+e.getMessage());
-                                }
-                            }
+        // updating offset value to highest value
+        if (rank >= offSet)
+        offSet = rank;
 
-                            adapter.notifyDataSetChanged();
-                        }
-                        //stopping swipe refresh
+        } catch (JSONException e) {
+        Log.e(TAG, "JSON Parsing error: " + e.getMessage());
+        }
+        }
 
-                        swipeRefreshLayout.setRefreshing(false);
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        adapter.notifyDataSetChanged();
+        }
 
-                Log.e(TAG, "Server Error: " + error.getMessage());
+        // stopping swipe refresh
+        swipeRefreshLayout.setRefreshing(false);
 
-                Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        }, new Response.ErrorListener() {
+@Override
+public void onErrorResponse(VolleyError error) {
+        Log.e(TAG, "Server Error: " + error.getMessage());
 
-                //stopping swipe refreshing
+        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
 
-                swipeRefreshLayout.setRefreshing(false);
-            }
+        // stopping swipe refresh
+        swipeRefreshLayout.setRefreshing(false);
+        }
         });
-        //Adding request to request queue
 
-        MyApplication.getmInstance().addToRequestQueue(req);
-    }
+        // Adding request to request queue
+        MyApplication.getInstance().addToRequestQueue(req);
+        }
 
-}
+        }
